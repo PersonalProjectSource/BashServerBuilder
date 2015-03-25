@@ -1,0 +1,40 @@
+
+
+echo $1 $2 $3 $4 $5 $6
+
+
+VHOST_PATH=$6
+VHOST_NAME=$5 
+
+tmp="
+<VirtualHost *:$1>\n
+\t        ServerAdmin $2\n
+\t        ServerName  $3\n
+\t        #Indexes + Directory Root\n
+\t        DocumentRoot $4\n
+\t        <Directory \"$4\">\n
+\t        # DirectoryIndex app.php\n
+\t\t                Options Indexes FollowSymLinks MultiViews\n
+\t\t                AllowOverride All\n
+\t\t                Order allow,deny\n
+\t\t                Allow from all\n
+\t        </Directory>\n
+\t        SSLEngine on\n
+\t        SSLCertificateFile /etc/pki/tls/certs/localhost.crt\n
+\t        SSLCertificateKeyFile /etc/pki/tls/private/localhost.key\n
+\t        #LOG FILES\n
+\t        ErrorLog  /var/log/httpd/error.log\n
+\t        CustomLog /var/log/httpd/access.log combined\n
+\t        <IfModule mod_rewrite.c>\n
+\t\t                RewriteEngine On\n
+\t\t                RewriteCond %{REQUEST_URI}::$1 ^(/.+)/(.*)::\2$\n
+\t\t                RewriteRule ^(.*) - [E=BASE:%1]\n
+\t\t                RewriteCond %{ENV:REDIRECT_STATUS} ^$\n
+\t\t                RewriteRule ^app\.php(/(.*)|$) %{ENV:BASE}/$2 [R=301,L]\n
+\t\t                RewriteCond %{DOCUMENT_ROOT}%{REQUEST_FILENAME} -f\n
+\t\t                RewriteRule .? - [L]\n
+\t\t                RewriteRule .? %{DOCUMENT_ROOT}%{ENV:BASE}/app.php [L]\n
+\t        </IfModule>\n
+</VirtualHost>\n
+"
+sudo -s 'echo -e $tmp > $VHOST_PATH/$VHOST_NAME.conf'

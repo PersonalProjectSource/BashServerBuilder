@@ -2,7 +2,10 @@
 
 # Déclaration des variables parametrables.
 PACKET_MANAGER_NAME=""
+LOCALITY=""
 FUNCTION_PACKET_MANAGER="serverInstaller"
+# SUFFIXE QU'ON UTILISERA POUR UN APPEL DYNAMIQUE DES FONCTIONS
+FUNCTION_SUFFIXE=""
 
 # Variable par defaut
 DEFAULT_PACKET_MANAGER="yum"
@@ -16,20 +19,23 @@ function launch {
    
 	# TODO sonde pour check la sortie de l'api
 	echo $PACKET_MANAGER_NAME
+    #serverInstaller_${FUNCTION_SUFFIXE}
+    #apacheInstaller_${FUNCTION_SUFFIXE}
 
- #    serverInstaller
- #    apacheInstaller
- #    mysqlInstaller
-	phpInstaller
-	# vhostEditor
+    # TODO mysqlInstaller_${FUNCTION_SUFFIXE} TODO trouver le packet mariadb pour apt
+	# phpInstaller_${FUNCTION_SUFFIXE}
+	vhostEditor
 	# getGitRepository
-	# composerInstaller
-	# phpIniEditor
-	# pearInstaller
+	# composerInstaller_${FUNCTION_SUFFIXE}
+	# TODO phpIniEditor
+	# ? pearInstaller_${FUNCTION_SUFFIXE}
 	# deflateFileEditor
 	# expireFileEditor
+
 	echo "DONE"
 	current_prompt
+
+	# FAIRE UN SYSTEME DE LOG POUR VOIR LES ETATS ECHEC OU SUCCESS DES ETAPES
 }
 
 
@@ -37,15 +43,16 @@ function launch_prompt {
 	while :
 	do
 		if [[ $PACKET_MANAGER_NAME == "" ]]; then
-			echo "Selectionnez un gestionnaire de packet (YUM/apt/aptitude)"
+			printf "Selectionnez un gestionnaire de packet (YUM/apt/aptitude) : "
 			read packet_manager
+			FUNCTION_SUFFIXE=$packet_manager
 			define_packet_manager $packet_manager
-			break
 		fi
-		if [[ $LOCALITE == "" ]]; then
-			echo "Selectionnez la localite (AMERICA/europa)"
+		if [[ $LOCALITY == "" ]]; then
+			printf "Selectionnez la localite (AMERICA/europa) : "
 			read input_localite
-			break
+			define_localite
+			break;
 		fi
 	done
 }
@@ -53,18 +60,50 @@ function launch_prompt {
 function current_prompt {
 	while :
 	do
-		echo '#####>' 
-		read out
+		printf '#>> ' 
+		read out manager action packet
+		
 		if [[ $out == "exit" ]]; then
 			break
+		elif [[ $out == "sudo" ]]; then
+			#$out
+			$out $manager $action $packet
+		else
+			dynamic_name=$out$FUNCTION_SUFFIXE 
+			eval ${dynamic_name}
 		fi
-		echo $out
 	done
 }
+
+
+
 
 function update {
 	${PACKET_MANAGER_NAME} update
 }
+
+
+function make_vhost {
+	printf "Nom du fichier Vhost  : "
+	read vhostname
+
+	printf "ServerAdmin  : "
+	read serveradmin
+
+	printf "ServerName  : "
+	read servername
+
+	printf "DocumentRoot  : "
+	read documentroot
+
+	printf "numero du port  : "
+	read port
+
+
+	Configuration_files/default_vhost.conf coucou toi 
+}
+
+
 # Initialise le gestionnaire de packet en fonction de la saisie en console (yum par defaut).
 function define_packet_manager {
 
@@ -84,61 +123,121 @@ function define_packet_manager {
 function define_localite {
 
 	if [[ $1 == "" ]]; then
-		PACKET_MANAGER_NAME=$DEFAULT_LOCALITY
-	elif [[ $1 == "apt" ]]; then
-		PACKET_MANAGER_NAME="sudo apt-get"
-	elif [[ $1 == "aptitude" ]]; then
-		PACKET_MANAGER_NAME="sudo apt-get"
+		LOCALITY=$DEFAULT_LOCALITY
+	elif [[ $1 == "A" ]]; then
+		LOCALITY="America"
+	elif [[ $1 == "E" ]]; then
+		LOCALITY="Europa"
 	else
-		PACKET_MANAGER_NAME=$DEFAULT_LOCALITY
+		LOCALITY=$DEFAULT_LOCALITY
 	fi
 }
 
 
 # Appel dynamiquement la methode correspondant au bon gestionnaire de packets.
-function serverInstaller {
+function serverInstaller_yum {
 
-	# Appel dynamiquement la fonction selon le gestionnaire de packet définit
-	eval ${PACKET_MANAGER_NAME}
+	yum -y install nano
+	yum -y install git
+	yum -y install mod_ssl
 	#cat /usr/share/zoneinfo/America/Montreal > /etc/localtime # TODO rendre variable la localité du serveur "America"
 }
 
-# INSTALLATION D'APACHE
-function apacheInstaller {
+# Appel dynamiquement la methode correspondant au bon gestionnaire de packets.
+function serverInstaller_apt {
 
-	${PACKET_MANAGER_NAME} -y install httpd
-	systemctl enable httpd.service
-	systemctl start httpd.service => START SERVICE
-	apachectl configtest => TEST CONFIG OK
+	echo "INSTALL NANO"
+	sudo apt-get install nano
+	sudo apt-get install install git
+	sudo apt-get install install mod_ssl
+	#cat /usr/share/zoneinfo/America/Montreal > /etc/localtime # TODO rendre variable la localité du serveur "America"
 }
 
-# INSTALL MYSQL
-function mysqlInstaller {
+# INSTALLATION D'APACHE AVEC APT PACKET MANAGER
+function apacheInstaller_apt {
+
+	${PACKET_MANAGER_NAME} install apache2
+	#${PACKET_MANAGER_NAME} install httpd
+	sudo a2enMod rewrite
+	service apache2 starts
+	
+	apachectl configtest
+}
+
+# INSTALLATION D'APACHE yum
+# function apacheInstaller_yum {
+
+# 	${PACKET_MANAGER_NAME} -y install httpd
+# 	systemctl enable httpd.service
+# 	systemctl start httpd.service #=> START SERVICE
+# 	apachectl configtest #=> TEST CONFIG OK
+# }
+
+# INSTALL MYSQL APT
+function mysqlInstaller_apt {
+
+	${PACKET_MANAGER_NAME} install mariadb # TODO il faut importer le packet mariadb pour ubuntu
+}
+
+# INSTALL MYSQL YUM
+function mysqlInstaller_yum {
 
 	${PACKET_MANAGER_NAME} -y install mariadb
 }
 
-function phpInstaller {
+function phpInstaller_yum {
 	
-	#sudo chmod -777 /var/lib/dpkg/lock
+	sudo chmod -777 /var/lib/dpkg/lock
     ${PACKET_MANAGER_NAME} -y install php php-mysql php-gd php-pear
 	${PACKET_MANAGER_NAME} -y install php-pgsql
-	#systemctl restart httpd.service => restart service
+	systemctl restart httpd.service #=> restart service
+}
+
+function phpInstaller_apt {
+	
+	#sudo chmod -777 /var/lib/dpkg/lock ???? n'existe pas dans apt
+	${PACKET_MANAGER_NAME} install php5
+	${PACKET_MANAGER_NAME} install postgresql
+
+	${PACKET_MANAGER_NAME} install php5-intl
+	${PACKET_MANAGER_NAME} install libapache2-mod-php5 # equivalent apt de mstring
+
+	service apache2 restart
 }
 
 function vhostEditor {
-    echo "vhostEditor"
+
+    printf "Nom du vhost : "
+    read nomVhost
+    printf "Numero du port : "
+    read port
+    printf "ServerAdmin : "
+    read serveradmin
+    printf "ServerName : "
+    read servername
+    printf "Path du projet : "
+    read root
+
+    vhost_path="/etc/apache2/sites-available"
+
+    cd Configuration_files && ./make_vhost $port $serveradmin $servername $root $nomVhost $vhost_path
 }
 
 # Création + recuperation repository git
 function getGitRepository {
 
 	mkdir /var/www/bitume
-	git clone https://github.com/NGRP/Total-Bitume.git .
+	cd /var/www/bitume/ && git clone https://github.com/NGRP/Total-Bitume.git
 }
 
 # Installation composer + intl + mbstring
-function composerInstaller {
+function composerInstaller_apt {
+
+	cd /var/www/bitume/Total-Bitume/ && curl -s http://getcomposer.org/installer | php # possibilité de faire un script pour mise dans variable d'environnement
+}
+
+# Installation composer + intl + mbstring
+function composerInstaller_yum {
 
 	curl -s http://getcomposer.org/installer | php
 	${PACKET_MANAGER_NAME} -y install php-intl
@@ -158,7 +257,14 @@ function phpIniEditor {
 	# expose_php = Off
 }
 
-function pearInstaller {
+function pearInstaller_apt {
+
+    ${PACKET_MANAGER_NAME} install php-pear
+	# RSG ${PACKET_MANAGER_NAME} install php-devel
+	${PACKET_MANAGER_NAME} install gcc
+}
+
+function pearInstaller_yum {
 
     ${PACKET_MANAGER_NAME} install -y php-pear
 	${PACKET_MANAGER_NAME} install -y php-devel
@@ -167,12 +273,15 @@ function pearInstaller {
 
 function deflateFileEditor {
     echo "deflateFileEditor"
+
+    #cp /Configuration_files/deflat.conf /etc/httpd/conf.d/
+    cp Configuration_files/deflate.conf ./ # path a définir pour apt faut il creer httpd.
     # # creation /etc/httpd/conf.d/deflate.conf (voir mail)
 }
 
 function expireFileEditor {
     echo "expireFileEditor"
-    # # Create /etc/httpd/conf.d/expire.conf (voir mail)
+    cp Configuration_files/expire.conf ./
 }
 
 function apt {
@@ -181,6 +290,7 @@ function apt {
 
 # TODO voir pour garder la fonction apt et aptitude.
 function yum {
+
     ${PACKET_MANAGER_NAME} -y install nano
 	${PACKET_MANAGER_NAME} -y install git
 	${PACKET_MANAGER_NAME} -y install mod_ssl
@@ -191,10 +301,44 @@ function yum {
 # TODO no garde la fonction aptitude jusqu'a qu'on soit sur que les commandes apt et yum soient identiques.
 function aptitude {
 	echo "passage aptitude"
-    ${PACKET_MANAGER_NAME} -y install nano
 	# ${PACKET_MANAGER_NAME} -y install git
 	# ${PACKET_MANAGER_NAME} -y install mod_ssl
 	# ${PACKET_MANAGER_NAME} install ntp
+}
+
+function purgeapt {
+	echo "PURGE NANO"
+	sudo apt-get purge nano
+	sudo apt-get purge git
+	sudo apt-get purge mod_ssl
+
+	sudo apt-get delete nano
+	sudo apt-get delete git
+	sudo apt-get delete mod_ssl # inconnu pour aptitude TODO rsg
+
+
+	# ##################################
+	${PACKET_MANAGER_NAME} install apache2
+	#${PACKET_MANAGER_NAME} install httpd
+	sudo a2enMod rewrite
+	service apache2 starts
+	
+	apachectl configtest
+
+	${PACKET_MANAGER_NAME} php5
+	${PACKET_MANAGER_NAME} postgresql
+	service apache2 restart
+
+	# suppression des repositories + git
+}
+
+function helpapt {
+	echo "Les commandes sudo sont acceptées : Installation par le gestionnaire de packet apt-get"
+	echo "showLog                           : Affiche si toutes les taches ont bien été effectuées"
+	echo "update                            : Met a jour les librairies et packets linux"
+	echo "purge                             : Supprime tout les packets installés"
+	echo "exit                              : Quitte le prompt"
+
 }
 
 # Lancement de l'application

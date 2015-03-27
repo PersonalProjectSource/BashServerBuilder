@@ -1,5 +1,4 @@
 #!/bin/bash
-temporary
 # Déclaration des variables parametrables.
 PACKET_MANAGER_NAME=""
 LOCALITY=""
@@ -9,9 +8,10 @@ FUNCTION_SUFFIXE=""
 
 # Variable par defaut
 DEFAULT_PACKET_MANAGER="yum"
-DEFAULT_LOCALITY="America"
+DEFAULT_LOCALITY="Europe/Paris"
 PATH_TEMPO_FOLDER="temporary"
 VHOST_PATH="/etc/apache2/sites-available"
+PATH_PHP_INI="/etc/php5/apache2/php.ini"
 
 function launch {
     # Démarre le script.
@@ -25,14 +25,13 @@ function launch {
 
     # TODO mysqlInstaller_${FUNCTION_SUFFIXE} TODO trouver le packet mariadb pour apt
 	# phpInstaller_${FUNCTION_SUFFIXE}
-	vhostEditor
+	# vhostEditor
 	# getGitRepository
 	# composerInstaller_${FUNCTION_SUFFIXE}
-	# TODO phpIniEditor
+	phpIniEditor
 	# ? pearInstaller_${FUNCTION_SUFFIXE}
 	# deflateFileEditor
 	# expireFileEditor
-
 	echo "DONE"
 	current_prompt
 
@@ -50,7 +49,7 @@ function launch_prompt {
 			define_packet_manager $packet_manager
 		fi
 		if [[ $LOCALITY == "" ]]; then
-			printf "Selectionnez la localite (AMERICA/europa) : "
+			printf "Selectionnez la localite (amerique|EUROPE/PARIS) : "
 			read input_localite
 			define_localite
 			break;
@@ -128,7 +127,7 @@ function define_localite {
 	elif [[ $1 == "A" ]]; then
 		LOCALITY="America"
 	elif [[ $1 == "E" ]]; then
-		LOCALITY="Europa"
+		LOCALITY="Europa/Paris"
 	else
 		LOCALITY=$DEFAULT_LOCALITY
 	fi
@@ -249,13 +248,82 @@ function phpIniEditor {
     echo "phpIniEditor"
     # Edition du fichier php.ini. (Voir pour trouver le bon en fonction de la version de php utilisée).
 	# Dans /etc/php.ini => ajouter date.timezone = Europe/Paris
+	echo "Path de votre php.ini : $PATH_PHP_INI"
+	printf "Si votre path est différent veuillez le saisir : "
+	read newPath
 
-	# short_open_tag = Off
-	# magic_quotes_gpc = Off
-	# register_globals = Off
-	# session.autostart = Off
-	# memory_limit = 256MB
-	# expose_php = Off
+	if [[ $newPath != "" ]]; then
+		PATH_PHP_INI=$newPath
+	fi
+
+	# Copie du php.ini du serveur dans le dossier temporaire /temporary/ini
+	cp /etc/php5/apache2/php.ini ./temporary/ini/
+	# parsing du fichier temporaire
+	cp /etc/php5/apache2/php.ini ./temporary/ini/
+	file="temporary/ini/php.ini"
+ 	echo "############# ETAT INITIAL #################"
+	while read ligne  
+	do  
+	  # echo $ligne
+	   if [[ $ligne =~ "short_open_tag" ]]; then
+	   	echo $ligne
+	   	sed -e "s/On/Off/g" "$file" > "$file".tmp && mv $file".tmp" $file 
+	   fi
+	   if [[ $ligne =~ "magic_quotes_gpc" ]]; then
+	   	echo $ligne
+	   	sed -e "s/On/Off/g" "$file" > "$file".tmp && mv $file".tmp" $file 
+	   fi
+	   if [[ $ligne =~ "register_globals" ]]; then
+	   	echo $ligne
+	   	sed -e "s/On/Off/g" "$file" > "$file".tmp && mv $file".tmp" $file 
+	   fi
+	   if [[ $ligne =~ "session.autostart" ]]; then
+	   	echo $ligne
+	   	sed -e "s/On/Off/g" "$file" > "$file".tmp && mv $file".tmp" $file 
+	   fi
+
+	   if [[ $ligne =~ "memory_limit" ]]; then
+	   	echo $ligne
+	   	sed -e "s/$ligne/memory_limit = 256MB/g" "$file" > "$file".tmp && mv $file".tmp" $file 
+	   fi
+	   if [[ $ligne =~ "expose_php" ]]; then
+	   	echo $ligne
+	   	sed -e "s/On/Off/g" "$file" > "$file".tmp && mv $file".tmp" $file 
+	   fi
+	#sed -e "s/short_open_tag/toto/g" "$file" > "$file".tmp
+	#sed -e "s/\/root/\/home/g" fichier > fichier.tmp && mv -f fichier.tmp fichier 
+	done < temporary/ini/php.ini
+	echo "########################################"
+
+	 echo "########### ETAT MODIFIÉ ###############"
+	while read ligne  
+	do  
+	  # echo $ligne
+	   if [[ $ligne =~ "short_open_tag" ]]; then
+	   	echo $ligne
+	   fi
+	   if [[ $ligne =~ "magic_quotes_gpc" ]]; then
+	   	echo $ligne
+	   fi
+	   if [[ $ligne =~ "register_globals" ]]; then
+	   	echo $ligne
+	   fi
+	   if [[ $ligne =~ "session.autostart" ]]; then
+	   	echo $ligne
+	   fi
+	   if [[ $ligne =~ "memory_limit" ]]; then
+	   	echo $ligne
+	   fi
+	   if [[ $ligne =~ "expose_php" ]]; then
+	   	echo $ligne
+	   fi
+	#sed -e "s/short_open_tag/toto/g" "$file" > "$file".tmp
+	#sed -e "s/\/root/\/home/g" fichier > fichier.tmp && mv -f fichier.tmp fichier 
+	done < temporary/ini/php.ini
+	echo "########################################"
+	
+
+	sudo cp temporary/ini/php.ini $PATH_PHP_INI
 }
 
 function pearInstaller_apt {
@@ -339,6 +407,7 @@ function helpapt {
 	echo "update                            : Met a jour les librairies et packets linux"
 	echo "purge                             : Supprime tout les packets installés"
 	echo "exit                              : Quitte le prompt"
+	echo "revert                            : Remet la configuration dans son etat initiale"
 
 }
 

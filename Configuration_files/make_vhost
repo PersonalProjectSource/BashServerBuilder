@@ -1,10 +1,11 @@
 
 
-echo $1 $2 $3 $4 $5 $6
+echo $1 $2 $3 $4 $5 $6 $7
 
 
 VHOST_PATH=$6
 VHOST_NAME=$5 
+VHOST_TMP_FOLDER=$7
 
 tmp="
 <VirtualHost *:$1>\n
@@ -37,4 +38,8 @@ tmp="
 \t        </IfModule>\n
 </VirtualHost>\n
 "
-sudo -s 'echo -e $tmp > $VHOST_PATH/$VHOST_NAME.conf'
+
+
+echo -e $tmp > ../$VHOST_TMP_FOLDER/$VHOST_NAME.conf
+echo "pass ../$VHOST_TMP_FOLDER/$VHOST_NAME.conf"
+sudo cp ../$VHOST_TMP_FOLDER/$VHOST_NAME.conf $VHOST_PATH/$VHOST_NAME.conf

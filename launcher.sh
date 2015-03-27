@@ -1,5 +1,5 @@
 #!/bin/bash
-
+temporary
 # Déclaration des variables parametrables.
 PACKET_MANAGER_NAME=""
 LOCALITY=""
@@ -10,12 +10,13 @@ FUNCTION_SUFFIXE=""
 # Variable par defaut
 DEFAULT_PACKET_MANAGER="yum"
 DEFAULT_LOCALITY="America"
+PATH_TEMPO_FOLDER="temporary"
+VHOST_PATH="/etc/apache2/sites-available"
 
 function launch {
     # Démarre le script.
 
 	launch_prompt
-
    
 	# TODO sonde pour check la sortie de l'api
 	echo $PACKET_MANAGER_NAME
@@ -218,9 +219,9 @@ function vhostEditor {
     printf "Path du projet : "
     read root
 
-    vhost_path="/etc/apache2/sites-available"
-
-    cd Configuration_files && ./make_vhost $port $serveradmin $servername $root $nomVhost $vhost_path
+    #vhost_path="/etc/apache2/sites-available"
+    
+    cd Configuration_files && ./make_vhost $port $serveradmin $servername $root $nomVhost $VHOST_PATH $PATH_TEMPO_FOLDER
 }
 
 # Création + recuperation repository git

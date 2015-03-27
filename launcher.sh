@@ -12,6 +12,7 @@ DEFAULT_LOCALITY="Europe/Paris"
 PATH_TEMPO_FOLDER="temporary"
 VHOST_PATH="/etc/apache2/sites-available"
 PATH_PHP_INI="/etc/php5/apache2/php.ini"
+ABSOLUTE_PATH=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)
 
 function launch {
     # Démarre le script.
@@ -20,18 +21,18 @@ function launch {
    
 	# TODO sonde pour check la sortie de l'api
 	echo $PACKET_MANAGER_NAME
-    #serverInstaller_${FUNCTION_SUFFIXE}
-    #apacheInstaller_${FUNCTION_SUFFIXE}
+    serverInstaller_${FUNCTION_SUFFIXE}
+    apacheInstaller_${FUNCTION_SUFFIXE}
 
     # TODO mysqlInstaller_${FUNCTION_SUFFIXE} TODO trouver le packet mariadb pour apt
-	# phpInstaller_${FUNCTION_SUFFIXE}
-	# vhostEditor
-	# getGitRepository
-	# composerInstaller_${FUNCTION_SUFFIXE}
+	phpInstaller_${FUNCTION_SUFFIXE}
+	vhostEditor
+	getGitRepository
+	composerInstaller_${FUNCTION_SUFFIXE}
 	phpIniEditor
 	# ? pearInstaller_${FUNCTION_SUFFIXE}
-	# deflateFileEditor
-	# expireFileEditor
+	deflateFileEditor
+	expireFileEditor
 	echo "DONE"
 	current_prompt
 
@@ -257,29 +258,32 @@ function phpIniEditor {
 	fi
 
 	# Copie du php.ini du serveur dans le dossier temporaire /temporary/ini
-	cp /etc/php5/apache2/php.ini ./temporary/ini/
+	cp /etc/php5/apache2/php.ini temporary/ini/
 	# parsing du fichier temporaire
-	cp /etc/php5/apache2/php.ini ./temporary/ini/
-	file="temporary/ini/php.ini"
+	# cp /etc/php5/apache2/php.ini temporary/ini/
+	#file="temporary/ini/php.ini"
+	file="$ABSOLUTE_PATH/temporary/ini/php.ini"
+	echo "test path Absolute ===== $ABSOLUTE_PATH"
  	echo "############# ETAT INITIAL #################"
 	while read ligne  
 	do  
 	  # echo $ligne
 	   if [[ $ligne =~ "short_open_tag" ]]; then
 	   	echo $ligne
-	   	sed -e "s/On/Off/g" "$file" > "$file".tmp && mv $file".tmp" $file 
+	   	#sed -e "s/Off/On/g" "$file" > "$file".tmp && mv $file".tmp" $file
+	   	sed -e "s/$ligne/short_open_tag = Off/g" "$file" > "$file".tmp && mv $file".tmp" $file 
 	   fi
 	   if [[ $ligne =~ "magic_quotes_gpc" ]]; then
 	   	echo $ligne
-	   	sed -e "s/On/Off/g" "$file" > "$file".tmp && mv $file".tmp" $file 
+	   	sed -e "s/$ligne/magic_quotes_gpc = Off/g" "$file" > "$file".tmp && mv $file".tmp" $file 
 	   fi
 	   if [[ $ligne =~ "register_globals" ]]; then
 	   	echo $ligne
-	   	sed -e "s/On/Off/g" "$file" > "$file".tmp && mv $file".tmp" $file 
+	   	sed -e "s/$ligne/register_globals = Off/g" "$file" > "$file".tmp && mv $file".tmp" $file
 	   fi
 	   if [[ $ligne =~ "session.autostart" ]]; then
 	   	echo $ligne
-	   	sed -e "s/On/Off/g" "$file" > "$file".tmp && mv $file".tmp" $file 
+	   	sed -e "s/$ligne/session.autostart = Off/g" "$file" > "$file".tmp && mv $file".tmp" $file
 	   fi
 
 	   if [[ $ligne =~ "memory_limit" ]]; then
@@ -288,14 +292,19 @@ function phpIniEditor {
 	   fi
 	   if [[ $ligne =~ "expose_php" ]]; then
 	   	echo $ligne
-	   	sed -e "s/On/Off/g" "$file" > "$file".tmp && mv $file".tmp" $file 
+	   	sed -e "s/$ligne/expose_php = Off/g" "$file" > "$file".tmp && mv $file".tmp" $file
+	   fi
+	   if [[ $ligne =~ "date.timezone" ]]; then
+	   	echo $ligne
+	   	sed -e "s/$ligne/date.timezone = Europe\/Paris/g" "$file" > "$file".tmp && mv $file".tmp" $file
 	   fi
 	#sed -e "s/short_open_tag/toto/g" "$file" > "$file".tmp
 	#sed -e "s/\/root/\/home/g" fichier > fichier.tmp && mv -f fichier.tmp fichier 
-	done < temporary/ini/php.ini
+	done < $ABSOLUTE_PATH/temporary/ini/php.ini
 	echo "########################################"
 
-	 echo "########### ETAT MODIFIÉ ###############"
+	echo "########### ETAT MODIFIÉ ##############"
+	pwd
 	while read ligne  
 	do  
 	  # echo $ligne
@@ -317,13 +326,17 @@ function phpIniEditor {
 	   if [[ $ligne =~ "expose_php" ]]; then
 	   	echo $ligne
 	   fi
+	   if [[ $ligne =~ "date.timezone" ]]; then
+	   	echo $ligne
+	   fi
+	   
 	#sed -e "s/short_open_tag/toto/g" "$file" > "$file".tmp
 	#sed -e "s/\/root/\/home/g" fichier > fichier.tmp && mv -f fichier.tmp fichier 
-	done < temporary/ini/php.ini
+
+	done < $ABSOLUTE_PATH/temporary/ini/php.ini
 	echo "########################################"
 	
-
-	sudo cp temporary/ini/php.ini $PATH_PHP_INI
+	sudo cp $ABSOLUTE_PATH/temporary/ini/php.ini $PATH_PHP_INI
 }
 
 function pearInstaller_apt {
@@ -344,13 +357,13 @@ function deflateFileEditor {
     echo "deflateFileEditor"
 
     #cp /Configuration_files/deflat.conf /etc/httpd/conf.d/
-    cp Configuration_files/deflate.conf ./ # path a définir pour apt faut il creer httpd.
+    cp $ABSOLUTE_PATH/Configuration_files/deflate.conf ./ # path a définir pour apt faut il creer httpd.
     # # creation /etc/httpd/conf.d/deflate.conf (voir mail)
 }
 
 function expireFileEditor {
     echo "expireFileEditor"
-    cp Configuration_files/expire.conf ./
+    cp $ABSOLUTE_PATH/Configuration_files/expire.conf ./
 }
 
 function apt {

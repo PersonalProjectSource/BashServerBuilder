@@ -1,0 +1,8 @@
+Les commandes sudo sont acceptées : Installation par le gestionnaire de packet apt-get
+showLog                           : Affiche si toutes les taches ont bien été effectuées
+update                            : Met a jour les librairies et packets linux
+purge                             : Supprime tout les packets installés
+exit                              : Quitte le prompt
+revert                            : Remet la configuration dans son etat initiale        
+sudo apt-get install default-jdk : installation du jdk java         
+php composer.phar install  : Lance composer pour qu'il installe les dépendances du projets    

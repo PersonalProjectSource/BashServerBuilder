@@ -6,16 +6,19 @@
 . libraries/composer.sh
 . libraries/pear.sh
 . libraries/purge.sh
+. libraries/serverInstaller.sh
 
 # Déclaration des variables parametrables.
 PACKET_MANAGER_NAME=""
 LOCALITY=""
 FUNCTION_PACKET_MANAGER="serverInstaller"
-PATH_SOURCES_PROJET="/var/www/bitume"
 
 DEFAULT_PACKET_MANAGER="yum"
 DEFAULT_LOCALITY="Europe/Paris"
+
+REFERENCE_PATH=""
 PATH_TEMPO_FOLDER="temporary"
+PATH_SOURCES_PROJET="/var/www/bitume"
 VHOST_PATH="/etc/apache2/sites-available"
 PATH_PHP_INI="/etc/php5/apache2/php.ini"
 ABSOLUTE_PATH=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)
@@ -24,23 +27,23 @@ FUNCTION_SUFFIXE=""
 
 function launch {
     # Démarre le script.
-
-	# launch_prompt
+    REFERENCE_PATH=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)
+    echo $REFERENCE_PATH
+	launch_prompt
    
-	# # TODO sonde pour check la sortie de l'api
-	# echo $PACKET_MANAGER_NAME
- #    serverInstaller_${FUNCTION_SUFFIXE}
- #    apacheInstaller_${FUNCTION_SUFFIXE}
-
- #    # TODO mysqlInstaller_${FUNCTION_SUFFIXE} TODO trouver le packet mariadb pour apt
-	# phpInstaller_${FUNCTIOsN_SUFFIXE}
-	# vhostEditor
-	# getGitRepository
-	# composerInstaller_${FUNCTION_SUFFIXE}
-	# phpIniEditor
-	# # ? pearInstaller_${FUNCTION_SUFFIXE}
-	# deflateFileEditor
-	# expireFileEditor
+	# TODO sonde pour check la sortie de l'api
+	echo $PACKET_MANAGER_NAME
+    serverInstaller_${FUNCTION_SUFFIXE}
+    apacheInstaller_${FUNCTION_SUFFIXE}
+    # TODO mysqlInstaller_${FUNCTION_SUFFIXE} TODO trouver le packet mariadb pour apt
+	phpInstaller_${FUNCTIOsN_SUFFIXE}
+	vhostEditor
+	getGitRepository
+	composerInstaller_${FUNCTION_SUFFIXE}
+	phpIniEditor
+	# ? pearInstaller_${FUNCTION_SUFFIXE}
+	deflateFileEditor
+	expireFileEditor
 	# echo "DONE"
 	current_prompt
 
@@ -96,12 +99,12 @@ function add_action {
 	printf "Saisissez la commande a ajouter a la procedure de création du serveur (sudo si admin requis): "
 	read commande manager action packet
 
-	echo -e "$commande $manager $action $packet" >> command_added.sh
-	cat command_added.sh
+	echo -e "$commande $manager $action $packet" >> $REFERENCE_PATH/command_added.sh
+	cat $REFERENCE_PATH/command_added.sh
 	printf "Saisissez une description de la commande pour le fichier d'aide : "
 	read  word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13
-	echo -e "$commande $manager $action $packet : $word1 $word2 $word3 $word4 $word5 $word6 $word7 $word8 $word9 $word10 $word11 $word12 $word13" >> libraries/help_commande.txt
-	cat libraries/help_commande.txt
+	echo -e "$commande $manager $action $packet : $word1 $word2 $word3 $word4 $word5 $word6 $word7 $word8 $word9 $word10 $word11 $word12 $word13" >> $REFERENCE_PATH/libraries/help_commande.txt
+	cat $REFERENCE_PATH/libraries/help_commande.txt
 }
 
 # Initialise le gestionnaire de packet en fonction de la saisie en console (yum par defaut).
@@ -111,10 +114,8 @@ function define_packet_manager {
 		PACKET_MANAGER_NAME=$DEFAULT_PACKET_MANAGER
 	elif [[ $1 == "apt" ]]; then
 		PACKET_MANAGER_NAME="sudo apt-get"
-		apt
 	elif [[ $1 == "aptitude" ]]; then
 		PACKET_MANAGER_NAME="sudo apt-get"
-		aptitude
 	else
 		PACKET_MANAGER_NAME=$DEFAULT_PACKET_MANAGER
 	fi
@@ -151,8 +152,8 @@ function expireFileEditor {
 }
 
 function helpapt {
-	less libraries/help_commande.txt
-
+	pwd
+	cat $REFERENCE_PATH/libraries/help_commande.txt
 	# echo "Les commandes sudo sont acceptées : Installation par le gestionnaire de packet apt-get"
 	# echo "showLog                           : Affiche si toutes les taches ont bien été effectuées"
 	# echo "update                            : Met a jour les librairies et packets linux"
@@ -163,36 +164,3 @@ function helpapt {
 
 # Lancement de l'application
 launch
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

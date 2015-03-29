@@ -20,6 +20,7 @@ function purgeapt {
 	${PACKET_MANAGER_NAME} php5
 	${PACKET_MANAGER_NAME} postgresql
 	service apache2 restart
-
 	# suppression des repositories + git
 }
+
+# TODO faire purge de YUM

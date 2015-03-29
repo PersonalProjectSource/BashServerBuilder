@@ -11,8 +11,6 @@ function phpIniEditor {
 	fi
 
 	# Copie du php.ini du serveur dans le dossier temporaire /temporary/ini
-	echo "#############################$ABSOLUTE_PATH"
-	pwd
 	cp /etc/php5/apache2/php.ini $ABSOLUTE_PATH/temporary/ini/
 	cp /etc/php5/apache2/php.ini $ABSOLUTE_PATH/temporary/ini/php_bak.ini
 
@@ -20,8 +18,7 @@ function phpIniEditor {
 	# cp /etc/php5/apache2/php.ini temporary/ini/
 	#file="temporary/ini/php.ini"
 	file="$ABSOLUTE_PATH/temporary/ini/php.ini"
-	echo "test path Absolute ===== $ABSOLUTE_PATH"
- 	echo "############# ETAT INITIAL #################"
+ 	echo "############# ETAT INITIAL ###############"
 	while read ligne  
 	do  
 	   if [[ $ligne =~ "short_open_tag" ]]; then
@@ -40,7 +37,6 @@ function phpIniEditor {
 	   	echo $ligne
 	   	sed -e "s/$ligne/session.autostart = Off/g" "$file" > "$file".tmp && mv $file".tmp" $file
 	   fi
-
 	   if [[ $ligne =~ "memory_limit" ]]; then
 	   	echo $ligne
 	   	sed -e "s/$ligne/memory_limit = 256MB/g" "$file" > "$file".tmp && mv $file".tmp" $file 
@@ -55,9 +51,7 @@ function phpIniEditor {
 	   fi
 	done < $ABSOLUTE_PATH/temporary/ini/php.ini
 	echo "########################################"
-
 	echo "########### ETAT MODIFIÉ ##############"
-	pwd
 	while read ligne  
 	do  
 	  # echo $ligne
@@ -84,6 +78,5 @@ function phpIniEditor {
 	   fi
 	done < $ABSOLUTE_PATH/temporary/ini/php.ini
 	echo "########################################"
-	
 	sudo cp $ABSOLUTE_PATH/temporary/ini/php.ini $PATH_PHP_INI
 }

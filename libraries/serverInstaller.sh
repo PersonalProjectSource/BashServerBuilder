@@ -15,7 +15,7 @@ function serverInstaller_yum {
 
 	${PACKET_MANAGER_NAME} -y install java-1.7.0-openjdk.x86_64
 	
-	mysql -u user -h host -p bdd_name < bdd_data.sql
+	mysql -u user -h host -p bdd_name < $PATH_SOURCES_PROJET/bdd_data.sql
 
 	cd $PATH_SOURCES_PROJET/ && php composer.phar install
 	cd $PATH_SOURCES_PROJET/ && php app/console assetic:dump —env=prod

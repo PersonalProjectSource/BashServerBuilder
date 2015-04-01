@@ -9,7 +9,10 @@ function serverInstaller_yum {
 
 	${PACKET_MANAGER_NAME} install -y gcc
 	${PACKET_MANAGER_NAME} -y install php-process # => normalement déjà installé
+
+	${PACKET_MANAGER_NAME} install pecl
 	pecl install apc
+
 	${PACKET_MANAGER_NAME} -y install java-1.7.0-openjdk.x86_64
 	
 	mysql -u user -h host -p bdd_name < bdd_data.sql

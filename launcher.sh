@@ -137,6 +137,7 @@ function define_localite {
 # Création + recuperation repository git
 function getGitRepository {
 
+	echo "############################ GIT REPO ################################"
 	mkdir $PATH_SOURCES_PROJET
 	cd $PATH_SOURCES_PROJET && git clone https://github.com/NGRP/Total-Bitume.git
 }

@@ -8,3 +8,15 @@ function apacheInstaller_apt {
 	
 	apachectl configtest
 }
+
+# INSTALLATION D'APACHE AVEC YUM PACKET MANAGER
+function apacheInstaller_yum {
+
+	sudo yum -y install httpd
+	sudo yum -y install php-pear
+	systemctl enable httpd.service
+
+	systemctl start httpd.service # => START SERVICE
+
+	apachectl configtest # => TEST CONFIG OK
+}

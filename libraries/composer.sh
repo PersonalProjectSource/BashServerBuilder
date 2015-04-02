@@ -11,8 +11,11 @@ function composerInstaller_apt {
 
 # Installation composer + intl + mbstring
 function composerInstaller_yum {
-
-	cd /var/www/bitume/Total-Bitume/ && curl -s http://getcomposer.org/installer | php
+	
+	${PACKET_MANAGER_NAME} -y install php-cli
 	${PACKET_MANAGER_NAME} -y install php-intl
 	${PACKET_MANAGER_NAME} -y install php-mbstring
+	sudo chmod -R 777 ../
+	cd /var/www/bitume/ && sudo curl -s http://getcomposer.org/installer | php
+	sudo chmod -R 755 ../
 }

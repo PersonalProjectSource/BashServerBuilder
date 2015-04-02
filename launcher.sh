@@ -7,6 +7,7 @@
 . libraries/pear.sh
 . libraries/purge.sh
 . libraries/serverInstaller.sh
+. libraries/vhostEditor.sh
 
 # Déclaration des variables parametrables.
 PACKET_MANAGER_NAME=""
@@ -33,13 +34,15 @@ function launch {
    
 	# TODO sonde pour check la sortie de l'api
 	echo $PACKET_MANAGER_NAME
-    serverInstaller_${FUNCTION_SUFFIXE}
-    apacheInstaller_${FUNCTION_SUFFIXE}
-    # TODO mysqlInstaller_${FUNCTION_SUFFIXE} TODO trouver le packet mariadb pour apt
+	
+	apacheInstaller_${FUNCTION_SUFFIXE}
+        # TODO mysqlInstaller_${FUNCTION_SUFFIXE} TODO trouver le packet mariadb pour apt
 	phpInstaller_${FUNCTIOsN_SUFFIXE}
 	vhostEditor
 	getGitRepository
 	composerInstaller_${FUNCTION_SUFFIXE}
+	
+	serverInstaller_${FUNCTION_SUFFIXE}
 	phpIniEditor
 	# ? pearInstaller_${FUNCTION_SUFFIXE}
 	deflateFileEditor
@@ -136,9 +139,10 @@ function define_localite {
 
 # Création + recuperation repository git
 function getGitRepository {
-
-	mkdir $PATH_SOURCES_PROJET
-	cd $PATH_SOURCES_PROJET && git clone https://github.com/NGRP/Total-Bitume.git
+	echo "-------------------------- git repo installer ----------------------------"
+	sudo mkdir $PATH_SOURCES_PROJET
+	cd $PATH_SOURCES_PROJET && sudo chmod -R 777 ../ && git clone https://github.com/NGRP/Total-Bitume.git
+	echo "----------------------------- FIN CLONE ---------------------------------"
 }
 
 function deflateFileEditor {

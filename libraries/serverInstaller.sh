@@ -15,20 +15,26 @@ function serverInstaller_yum {
 
 	${PACKET_MANAGER_NAME} -y install java-1.7.0-openjdk.x86_64
 	
-	mysql -u user -h host -p bdd_name < $PATH_SOURCES_PROJET/bdd_data.sql
+	# TODO voir avec adel mysql -u user -h host -p bdd_name < $PATH_SOURCES_PROJET/bdd_data.sql
 
 	cd $PATH_SOURCES_PROJET/ && php composer.phar install
 	cd $PATH_SOURCES_PROJET/ && php app/console assetic:dump —env=prod
 
 	setsebool -P httpd_can_network_connect 1
-	chcon -R -t public_content_rw_t app/cache
-	chcon -R -t public_content_rw_t app/logs
-	chcon -R -t public_content_rw_t app/sessions
-	chcon -R -t public_content_rw_t web/webservices
-	chcon -R -t public_content_rw_t web/excel
-	chcon -R -t public_content_rw_t webservices
+	#chcon -R -t public_content_rw_t $PATH_SOURCES_PROJET/Total-Bitume/app/cache
+	#chcon -R -t public_content_rw_t $PATH_SOURCES_PROJET/Total-Bitume/logs
+	#chcon -R -t public_content_rw_t $PATH_SOURCES_PROJET/Total-Bitume/sessions
+	chcon -R -t public_content_rw_t $PATH_SOURCES_PROJET/Total-Bitume/web/webservices
+	chcon -R -t public_content_rw_t $PATH_SOURCES_PROJET/Total-Bitume/web/excel
+	chcon -R -t public_content_rw_t $PATH_SOURCES_PROJET/Total-Bitume/webservices
 	setsebool -P allow_httpd_anon_write 1
-	cd $PATH_SOURCES_PROJET/ && chmod -R 0777 app/cache app/logs app/sessions
+	#cd $PATH_SOURCES_PROJET/ && chmod -R 0777 app/cache app/logs app/sessions
+	
+	echo "----------------- Composer install ----------------------------"
+	cd $PATH_SOURCES_PROJET/Total-Bitume && php composer.phar self-update
+	cd $PATH_SOURCES_PROJET/Total-Bitume && sudo rm composer.lock
+	cd $PATH_SOURCES_PROJET/Total-Bitume && php composer.phar install
+	cd $PATH_SOURCES_PROJET/Total-Bitume && php app/console assetic:dump —env=prod
 }
 
 

@@ -67,17 +67,5 @@ function serverInstaller_apt {
 	# setsebool -P allow_httpd_anon_write 1
 	cd $PATH_SOURCES_PROJET/ && chmod -R 0777 app/cache app/logs app/sessions
 
-
-
 }
 
-
-# # TODO voir pour garder la fonction apt et aptitude.
-# function yum {
-
-#     ${PACKET_MANAGER_NAME} -y install nano
-# 	${PACKET_MANAGER_NAME} -y install git
-# 	${PACKET_MANAGER_NAME} -y install mod_ssl
-
-# 	${PACKET_MANAGER_NAME} install ntp
-# }

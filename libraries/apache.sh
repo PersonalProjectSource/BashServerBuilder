@@ -8,3 +8,12 @@ function apacheInstaller_apt {
 	
 	apachectl configtest
 }
+
+
+function apacheInstaller_yum {
+
+	${PACKET_MANAGER_NAME} install httpd
+	#sudo a2enMod rewrite # TODO lbrau voir comment active le mode rewrite sur Centos
+	sudo apachectl restart
+	apachectl configtest
+}

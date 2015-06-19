@@ -7,46 +7,50 @@
 . libraries/pear.sh
 . libraries/purge.sh
 . libraries/serverInstaller.sh
+. libraries/vhostEditor.sh
 
 # Déclaration des variables parametrables.
 PACKET_MANAGER_NAME=""
 LOCALITY=""
 FUNCTION_PACKET_MANAGER="serverInstaller"
-
 DEFAULT_PACKET_MANAGER="sudo yum "
 DEFAULT_LOCALITY="Europe/Paris"
-
 REFERENCE_PATH=""
 PATH_TEMPO_FOLDER="temporary"
-PATH_SOURCES_PROJET="/var/www/bitume"
-VHOST_PATH="/etc/apache2/sites-available"
+PATH_SOURCES_PROJET="/var/www/bitume/Total-Bitume/"
+#VHOST_PATH="/etc/apache2/sites-available" # version apt ubuntu
+VHOST_PATH="/etc/httpd/conf.d/" # version yum Centos
 PATH_PHP_INI="/etc/php5/apache2/php.ini"
 ABSOLUTE_PATH=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)
 # SUFFIXE QU'ON UTILISERA POUR UN APPEL DYNAMIQUE DES FONCTIONS
 FUNCTION_SUFFIXE=""
 
 function launch {
+
     # Démarre le script.
     REFERENCE_PATH=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)
     echo $REFERENCE_PATH
 	launch_prompt
    
 	# TODO sonde pour check la sortie de l'api
-	echo $PACKET_MANAGER_NAME
-    serverInstaller_${FUNCTION_SUFFIXE}
-    apacheInstaller_${FUNCTION_SUFFIXE}
-    # TODO mysqlInstaller_${FUNCTION_SUFFIXE} TODO trouver le packet mariadb pour apt
-	phpInstaller_${FUNCTIOsN_SUFFIXE}
-	vhostEditor
-	getGitRepository
-	composerInstaller_${FUNCTION_SUFFIXE}
-	phpIniEditor
-	# ? pearInstaller_${FUNCTION_SUFFIXE}
-	deflateFileEditor
-	expireFileEditor
-	# echo "DONE"
-	current_prompt
+    #serverInstaller_${FUNCTION_SUFFIXE}
+    #apacheInstaller_${FUNCTION_SUFFIXE} ## TODO dans le fonction
+    
+    # TODO trouver le packet mariadb pour apt
+ #    mysqlInstaller_${FUNCTION_SUFFIXE}
+	# phpInstaller_${FUNCTION_SUFFIXE}
+	# vhostEditor
 
+	#getGitRepository # voir s'il ne fait pas doublons avec capilolo
+	#composerInstaller_${FUNCTION_SUFFIXE}
+
+	#phpIniEditor # TODO lbrau : voir pour le modif php.ini timezone.
+	# pearInstaller_${FUNCTION_SUFFIXE}
+	# deflateFileEditor
+	# expireFileEditor
+	
+	echo "L'ensemble des traitements est terminé"
+	current_prompt
 	# FAIRE UN SYSTEME DE LOG POUR VOIR LES ETATS ECHEC OU SUCCESS DES ETAPES
 }
 
@@ -56,15 +60,21 @@ function launch_prompt {
 		if [[ $PACKET_MANAGER_NAME == "" ]]; then
 			printf "Selectionnez un gestionnaire de packet (YUM/apt/aptitude) : "
 			read packet_manager
-			FUNCTION_SUFFIXE=$packet_manager
+
+			if [[ $packet_manager == "" ]]; then
+				FUNCTION_SUFFIXE="yum"
+			fi
+			
 			define_packet_manager $packet_manager
 		fi
+
 		if [[ $LOCALITY == "" ]]; then
 			printf "Selectionnez la localite (amerique|EUROPE/PARIS) : "
 			read input_localite
 			define_localite
 			break;
 		fi
+		
 	done
 }
 
@@ -109,7 +119,6 @@ function add_action {
 
 # Initialise le gestionnaire de packet en fonction de la saisie en console (yum par defaut).
 function define_packet_manager {
-
 	if [[ $1 == "" ]]; then
 		PACKET_MANAGER_NAME=$DEFAULT_PACKET_MANAGER
 	elif [[ $1 == "apt" ]]; then
@@ -118,6 +127,7 @@ function define_packet_manager {
 		PACKET_MANAGER_NAME="sudo apt-get"
 	else
 		PACKET_MANAGER_NAME=$DEFAULT_PACKET_MANAGER
+		FUNCTION_SUFFIXE=$DEFAULT_PACKET_MANAGER
 	fi
 }
 
@@ -143,13 +153,12 @@ function getGitRepository {
 }
 
 function deflateFileEditor {
-    #cp /Configuration_files/deflat.conf /etc/httpd/conf.d/
-    cp $ABSOLUTE_PATH/Configuration_files/deflate.conf ./ # path a définir pour apt faut il creer httpd.
-    # # creation /etc/httpd/conf.d/deflate.conf (voir mail)
+    #cp $ABSOLUTE_PATH/Configuration_files/deflate.conf ./ # TODO path a définir pour apt faut il creer httpd.
+    cp $ABSOLUTE_PATH/Configuration_files/deflate.conf $VHOST_PATH 
 }
 
 function expireFileEditor {
-    cp $ABSOLUTE_PATH/Configuration_files/expire.conf ./
+    cp $ABSOLUTE_PATH/Configuration_files/expire.conf $VHOST_PATH  
 }
 
 function helpapt {

@@ -11,8 +11,11 @@ function phpIniEditor {
 	fi
 
 	# Copie du php.ini du serveur dans le dossier temporaire /temporary/ini
-	cp /etc/php5/apache2/php.ini $ABSOLUTE_PATH/temporary/ini/
-	cp /etc/php5/apache2/php.ini $ABSOLUTE_PATH/temporary/ini/php_bak.ini
+	#cp /etc/php5/apache2/php.ini $ABSOLUTE_PATH/temporary/ini/
+	#cp /etc/php5/apache2/php.ini $ABSOLUTE_PATH/temporary/ini/php_bak.ini
+
+	cp /etc/php.ini $ABSOLUTE_PATH/temporary/ini/
+	cp /etc/php.ini $ABSOLUTE_PATH/temporary/ini/php_bak.ini
 
 	# parsing du fichier temporaire
 	# cp /etc/php5/apache2/php.ini temporary/ini/
@@ -43,14 +46,28 @@ function phpIniEditor {
 	   fi
 	   if [[ $ligne =~ "expose_php" ]]; then
 	   	echo $ligne
-	   	sed -e "s/$ligne/expose_php = Off/g" "$file" > "$file".tmp && mv $file".tmp" $file
+	   	sed -e "/$ligne/expose_php = Off/g" "$file" > "$file".tmp && mv $file".tmp" $file
 	   fi
 	   if [[ $ligne =~ "date.timezone" ]]; then
-	   	echo "check ===> "$ligne
-	   	sed -e "s/$ligne/date.timezone = Europe\/Paris/g" "$file" > "$file".tmp && mv $file".tmp" $file
+
+	   	# TODO lbrau : la modificaiton du timezone ne fonctionne pas.
+	   	
+	   	# echo "sprout "$ligne
+	   	#sed -e 's/$ligne/' -e '/date.timezone = Europe\/Paris/' $file > "$file".tmp && mv $file".tmp" $file
+
+		#sed -e "s/$ligne/date.timezone = 257MB/g" "$file" > "$file".tmp && mv $file".tmp" $file 
+		# ligne="coucouc"
+		# sed -e "s/$ligne/date.timezone = 257MB/g" "$file" > "$file".tmp && mv $file".tmp" $file 
+	   	# echo "#### check passe ####"
+	   	# echo "check ===> "$ligne
+	   	# #sed -e "s/$ligne/memory_limit = 257MB/g" "$file" > "$file".tmp && mv $file".tmp" $file 
+	   	sed -e "s/$ligne/date.timezone = Europe\/Paris/" "$file" > "$file".tmp && mv $file".tmp" $file
+	   	# echo "check after ===> "$ligne
+	   	# #echo sed -e "s/$ligne/date.timezone = Europe\/Paris/g" "$file" 
+	   	# echo "###### fin passe ###"
 	   fi
-	done < $ABSOLUTE_PATH/temporary/ini/php.ini
-	echo "########################################"
+	 done < $ABSOLUTE_PATH/temporary/ini/php.ini
+	# echo "########################################"
 	echo "########### ETAT MODIFIÉ ##############"
 	while read ligne  
 	do  

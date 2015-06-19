@@ -39,7 +39,6 @@ tmp="
 </VirtualHost>\n
 "
 
-
 echo -e $tmp > ../$VHOST_TMP_FOLDER/$VHOST_NAME.conf
 echo "pass ../$VHOST_TMP_FOLDER/$VHOST_NAME.conf"
 sudo cp ../$VHOST_TMP_FOLDER/$VHOST_NAME.conf $VHOST_PATH/$VHOST_NAME.conf

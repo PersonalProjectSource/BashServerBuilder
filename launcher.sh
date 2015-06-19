@@ -33,21 +33,21 @@ function launch {
 	launch_prompt
    
 	# TODO sonde pour check la sortie de l'api
-    #serverInstaller_${FUNCTION_SUFFIXE}
-    #apacheInstaller_${FUNCTION_SUFFIXE} ## TODO dans le fonction
+    serverInstaller_${FUNCTION_SUFFIXE}
+    apacheInstaller_${FUNCTION_SUFFIXE} ## TODO dans le fonction
     
     # TODO trouver le packet mariadb pour apt
- #    mysqlInstaller_${FUNCTION_SUFFIXE}
-	# phpInstaller_${FUNCTION_SUFFIXE}
-	# vhostEditor
+    mysqlInstaller_${FUNCTION_SUFFIXE}
+	phpInstaller_${FUNCTION_SUFFIXE}
+	vhostEditor
 
 	#getGitRepository # voir s'il ne fait pas doublons avec capilolo
 	#composerInstaller_${FUNCTION_SUFFIXE}
 
 	#phpIniEditor # TODO lbrau : voir pour le modif php.ini timezone.
-	# pearInstaller_${FUNCTION_SUFFIXE}
-	# deflateFileEditor
-	# expireFileEditor
+	pearInstaller_${FUNCTION_SUFFIXE}
+	deflateFileEditor
+	expireFileEditor
 	
 	echo "L'ensemble des traitements est terminé"
 	current_prompt
@@ -64,7 +64,7 @@ function launch_prompt {
 			if [[ $packet_manager == "" ]]; then
 				FUNCTION_SUFFIXE="yum"
 			fi
-			
+
 			define_packet_manager $packet_manager
 		fi
 
